@@ -51,7 +51,9 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/camera',
-      builder: (context, state) => const CameraScreen(),
+      builder: (context, state) => CameraScreen(
+        poiId: state.uri.queryParameters['poiId'],
+      ),
     ),
     GoRoute(
       path: '/tickets',

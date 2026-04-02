@@ -151,8 +151,19 @@ class PoiDetailScreen extends ConsumerWidget {
 
               // Media section
               const Divider(height: 32),
-              Text('Media Assets',
-                  style: Theme.of(context).textTheme.titleMedium),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Media Assets',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  FilledButton.tonalIcon(
+                    onPressed: () =>
+                        context.push('/camera?poiId=${poi.id}'),
+                    icon: const Icon(Icons.camera_alt, size: 18),
+                    label: const Text('Take Photo'),
+                  ),
+                ],
+              ),
               const SizedBox(height: 8),
               mediaAsync.when(
                 loading: () => const CircularProgressIndicator(),
