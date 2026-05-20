@@ -29,6 +29,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final backlogAsync = ref.watch(backlogChunksProvider);
     final poisMapAsync = ref.watch(allPoisProvider);
 
+    // Backlog heights calculated proportionally to the screen height
+    final screenHeight = MediaQuery.of(context).size.height;
+    final expandedBacklogHeight = screenHeight * 0.6; // 60%
+    final collapsedBacklogHeight = screenHeight * 0.2; // 20%
+
     return Scaffold(
       appBar: AppBar(
         title: Text(DateFormat('MMMM yyyy').format(selectedDate)),
@@ -162,7 +167,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
-            height: _isBacklogExpanded ? 600 : 300,
+            height: _isBacklogExpanded
+              ? expandedBacklogHeight
+              : collapsedBacklogHeight,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerLow,
               border: Border(
@@ -237,10 +244,40 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                 leading:
                                     const Icon(Icons.location_on, size: 20),
                                 title: Text(poi?.name ?? chunk.poiId),
-                                trailing: FilledButton.tonal(
-                                  onPressed: () => _scheduleForDate(
-                                      ref, chunk, dateStr),
-                                  child: const Text('Schedule'),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(
+                                        minWidth: 36, minHeight: 36),
+                                      visualDensity: VisualDensity.compact,
+                                      icon: const Icon(Icons.delete),
+                                      tooltip: 'Delete',
+                                      onPressed: () => confirmDeleteTimeChunkAndRemove(
+                                        context, ref, chunk),
+                                    ),
+                                    IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(
+                                        minWidth: 36, minHeight: 36),
+                                      visualDensity: VisualDensity.compact,
+                                      icon: const Icon(Icons.edit),
+                                      tooltip: 'Edit',
+                                      onPressed: () => showScheduleEditDialog(
+                                        context, ref, chunk),
+                                    ),
+                                    IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(
+                                        minWidth: 36, minHeight: 36),
+                                      visualDensity: VisualDensity.compact,
+                                      icon: const Icon(Icons.add),
+                                      tooltip: 'Schedule',
+                                      onPressed: () => _scheduleForDate(
+                                        ref, chunk, dateStr),
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
@@ -269,4 +306,5 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       status: const Value('scheduled'),
     ));
   }
+
 }

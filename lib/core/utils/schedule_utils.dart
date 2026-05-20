@@ -6,11 +6,11 @@ import 'package:intl/intl.dart';
 import '../../../core/database/database.dart';
 import '../../../core/providers/database_provider.dart';
 
-void handleTimeChunkAction(BuildContext context, WidgetRef ref, String action, TimeChunk chunk) {
+Future<void> handleTimeChunkAction(BuildContext context, WidgetRef ref, String action, TimeChunk chunk) async {
   final db = ref.read(databaseProvider);
   switch (action) {
     case 'delete':
-      db.deleteTimeChunk(chunk.id);
+      await confirmDeleteTimeChunkAndRemove(context, ref, chunk);
       break;
     case 'edit':
       showScheduleEditDialog(context, ref, chunk);
@@ -18,7 +18,7 @@ void handleTimeChunkAction(BuildContext context, WidgetRef ref, String action, T
     case 'scheduled':
     case 'completed':
     case 'skipped':
-      db.updateTimeChunk(TimeChunksCompanion(
+      await db.updateTimeChunk(TimeChunksCompanion(
         id: Value(chunk.id),
         poiId: Value(chunk.poiId),
         date: Value(chunk.date),
@@ -28,7 +28,7 @@ void handleTimeChunkAction(BuildContext context, WidgetRef ref, String action, T
       ));
       break;
     case 'backlog':
-      db.updateTimeChunk(TimeChunksCompanion(
+      await db.updateTimeChunk(TimeChunksCompanion(
         id: Value(chunk.id),
         poiId: Value(chunk.poiId),
         date: Value(null),
@@ -121,4 +121,33 @@ final endController = TextEditingController(text: chunk.endTime ?? '12:00');
       ),
     ),
   );
+}
+
+Future<void> confirmDeleteTimeChunkAndRemove(
+    BuildContext context, WidgetRef ref, TimeChunk chunk) async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Delete Schedule?'),
+      content: const Text('This will permanently delete the schedule entry.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+  if (confirm == true) {
+    await _deleteChunk(ref, chunk);
+  }
+}
+
+Future<void> _deleteChunk(WidgetRef ref, TimeChunk chunk) async {
+  final db = ref.read(databaseProvider);
+  await db.deleteTimeChunk(chunk.id);
 }
