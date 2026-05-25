@@ -117,6 +117,11 @@ class AppDatabase extends _$AppDatabase {
   Future<int> insertMediaAsset(MediaAssetsCompanion asset) =>
       into(mediaAssets).insert(asset);
 
+  Future<int> updateMediaAssetLocalUri(String id, String localUri) =>
+      (update(mediaAssets)..where((m) => m.id.equals(id))).write(
+        MediaAssetsCompanion(localUri: Value(localUri)),
+      );
+
   Future<int> deleteMediaAsset(String id) =>
       (delete(mediaAssets)..where((m) => m.id.equals(id))).go();
 }

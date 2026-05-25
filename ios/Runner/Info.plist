@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Trip Planner uses the camera to capture POI photos with a reference overlay.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Trip Planner uses your photo library to choose anime reference images.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

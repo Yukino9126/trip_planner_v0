@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/database.dart';
@@ -174,11 +177,17 @@ class PoiDetailScreen extends ConsumerWidget {
                   }
                   return Column(
                     children: assets
-                        .map((asset) => ListTile(
-                              leading: _iconForType(asset.type),
-                              title: Text(asset.type),
-                              subtitle: Text(asset.localUri),
-                              contentPadding: EdgeInsets.zero,
+                        .map((asset) => _MediaAssetTile(
+                              asset: asset,
+                              onRename: () =>
+                                  _renameMediaAsset(context, ref, asset),
+                              onDelete: () =>
+                                  _deleteMediaAsset(context, ref, asset),
+                              onPreview: _isPreviewableImage(asset)
+                                  ? () => _showImagePreview(context, asset)
+                                  : null,
+                              title: _mediaAssetTitle(asset),
+                              icon: _iconForType(asset.type),
                             ))
                         .toList(),
                   );
@@ -364,9 +373,299 @@ class PoiDetailScreen extends ConsumerWidget {
     return switch (type) {
       'reference_frame' => const Icon(Icons.image),
       'user_photo' => const Icon(Icons.camera_alt),
+      'uploaded_image' => const Icon(Icons.save_alt),
       'ticket_qr' => const Icon(Icons.qr_code),
       'audio_bgm' => const Icon(Icons.music_note),
       _ => const Icon(Icons.attachment),
     };
+  }
+
+  String _mediaAssetTitle(MediaAsset asset) {
+    final fileName = p.basenameWithoutExtension(asset.localUri);
+    return fileName.isEmpty ? asset.type : fileName;
+  }
+
+  Future<void> _renameMediaAsset(
+    BuildContext context,
+    WidgetRef ref,
+    MediaAsset asset,
+  ) async {
+    final oldFile = File(asset.localUri);
+    final currentName = p.basenameWithoutExtension(asset.localUri);
+    final controller = TextEditingController(text: currentName);
+
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Rename Image'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Image name'),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (value) => Navigator.pop(ctx, value.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Rename'),
+          ),
+        ],
+      ),
+    );
+
+    controller.dispose();
+    if (newName == null || newName.isEmpty || newName == currentName) return;
+    if (!context.mounted) return;
+
+    final sanitizedName = p.basenameWithoutExtension(_sanitizeFileName(newName));
+    if (sanitizedName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid image name.')),
+      );
+      return;
+    }
+
+    if (!await oldFile.exists()) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Image file not found: ${asset.localUri}')),
+      );
+      return;
+    }
+
+    final extension = p.extension(asset.localUri).isEmpty
+        ? '.jpg'
+        : p.extension(asset.localUri);
+    final newPath = await _nextAvailableMediaPath(
+      p.dirname(asset.localUri),
+      sanitizedName,
+      extension,
+      asset.localUri,
+    );
+
+    try {
+      await oldFile.rename(newPath);
+
+      await ref.read(databaseProvider).updateMediaAssetLocalUri(
+            asset.id,
+            newPath,
+          );
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Image renamed.')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Rename failed: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteMediaAsset(
+    BuildContext context,
+    WidgetRef ref,
+    MediaAsset asset,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Image?'),
+        content: Text('This will remove "${_mediaAssetTitle(asset)}".'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true) return;
+
+    try {
+      final file = File(asset.localUri);
+      if (await file.exists()) {
+        await file.delete();
+      }
+
+      await ref.read(databaseProvider).deleteMediaAsset(asset.id);
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Image deleted.')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Delete failed: $e')),
+      );
+    }
+  }
+
+  String _sanitizeFileName(String input) {
+    return input.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_').trim();
+  }
+
+  Future<String> _nextAvailableMediaPath(
+    String directory,
+    String baseName,
+    String extension,
+    String currentPath,
+  ) async {
+    var candidate = p.join(directory, '$baseName$extension');
+    var suffix = 1;
+
+    while (candidate != currentPath && await File(candidate).exists()) {
+      candidate = p.join(directory, '$baseName-$suffix$extension');
+      suffix += 1;
+    }
+
+    return candidate;
+  }
+
+  bool _isPreviewableImage(MediaAsset asset) {
+    final uri = asset.localUri.toLowerCase();
+    final isKnownImageType = asset.type == 'user_photo' ||
+        asset.type == 'uploaded_image' ||
+        asset.type == 'reference_frame' ||
+        asset.type == 'ticket_qr';
+    final hasImageExtension = uri.endsWith('.jpg') ||
+        uri.endsWith('.jpeg') ||
+        uri.endsWith('.png') ||
+        uri.endsWith('.webp') ||
+        uri.endsWith('.gif') ||
+        uri.endsWith('.heic');
+
+    return isKnownImageType || hasImageExtension;
+  }
+
+  void _showImagePreview(BuildContext context, MediaAsset asset) {
+    final imageFile = File(asset.localUri);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog.fullscreen(
+        backgroundColor: Colors.black,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            FutureBuilder<bool>(
+              future: imageFile.exists(),
+              builder: (context, snapshot) {
+                final exists = snapshot.data ?? false;
+
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  );
+                }
+
+                if (!exists) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'Image file not found:\n${asset.localUri}',
+                        style: const TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                }
+
+                return InteractiveViewer(
+                  minScale: 0.75,
+                  maxScale: 4,
+                  child: Center(
+                    child: Image.file(imageFile, fit: BoxFit.contain),
+                  ),
+                );
+              },
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: AppBar(
+                  backgroundColor: Colors.black54,
+                  foregroundColor: Colors.white,
+                  title: Text(asset.type),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MediaAssetTile extends StatelessWidget {
+  final MediaAsset asset;
+  final String title;
+  final Widget icon;
+  final VoidCallback onRename;
+  final VoidCallback onDelete;
+  final VoidCallback? onPreview;
+
+  const _MediaAssetTile({
+    required this.asset,
+    required this.title,
+    required this.icon,
+    required this.onRename,
+    required this.onDelete,
+    required this.onPreview,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: icon,
+      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        asset.localUri,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      contentPadding: EdgeInsets.zero,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: 'Rename',
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: onRename,
+          ),
+          IconButton(
+            tooltip: 'Delete',
+            icon: const Icon(Icons.delete_outline),
+            onPressed: onDelete,
+          ),
+          IconButton(
+            tooltip: 'Preview',
+            icon: const Icon(Icons.open_in_full),
+            onPressed: onPreview,
+          ),
+        ],
+      ),
+    );
   }
 }
