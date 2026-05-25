@@ -41,10 +41,9 @@ class TimeChunks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-class MediaAssets extends Table {
+class ReferenceImages extends Table {
   TextColumn get id => text()();
   TextColumn get poiId => text().references(Pois, #id)();
-  TextColumn get type => text()();
   TextColumn get localUri => text()();
   TextColumn get remoteUrl => text().nullable()();
   TextColumn get metadata => text().nullable()();
@@ -52,3 +51,19 @@ class MediaAssets extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+class MediaAssets extends Table {
+  TextColumn get id => text()();
+  TextColumn get poiId => text().references(Pois, #id)();
+  TextColumn get type => text()();
+  TextColumn get localUri => text()();
+  TextColumn get remoteUrl => text().nullable()();
+  TextColumn get metadata => text().nullable()();
+  TextColumn get referenceImageId => text()
+      .nullable()
+      .references(ReferenceImages, #id, onDelete: KeyAction.setNull)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+

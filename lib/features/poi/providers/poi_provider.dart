@@ -19,6 +19,12 @@ final mediaAssetsByPoiProvider =
   return db.watchMediaAssetsByPoi(poiId);
 });
 
+final referenceImagesByPoiProvider =
+    StreamProvider.family<List<ReferenceImage>, String>((ref, poiId) {
+  final db = ref.watch(databaseProvider);
+  return db.watchReferenceImagesByPoi(poiId);
+});
+
 final timeChunksByPoiProvider =
     StreamProvider.family<List<TimeChunk>, String>((ref, poiId) {
   final db = ref.watch(databaseProvider);

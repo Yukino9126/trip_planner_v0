@@ -9,12 +9,28 @@ import 'tables.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(tables: [Rois, Pois, TimeChunks, MediaAssets])
+@DriftDatabase(tables: [Rois, Pois, TimeChunks, MediaAssets, ReferenceImages])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(referenceImages);
+          }
+          if (from < 3) {
+            await m.addColumn(mediaAssets, mediaAssets.referenceImageId);
+          }
+        },
+        beforeOpen: (details) async {
+          await customStatement('PRAGMA foreign_keys = ON');
+        },
+      );
 
   // --- ROI Queries ---
   Future<List<Roi>> getAllRois() => select(rois).get();
@@ -124,6 +140,24 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteMediaAsset(String id) =>
       (delete(mediaAssets)..where((m) => m.id.equals(id))).go();
+
+  // --- ReferenceImage Queries ---
+  Future<List<ReferenceImage>> getReferenceImagesByPoi(String poiId) =>
+      (select(referenceImages)..where((r) => r.poiId.equals(poiId))).get();
+
+  Stream<List<ReferenceImage>> watchReferenceImagesByPoi(String poiId) =>
+      (select(referenceImages)..where((r) => r.poiId.equals(poiId))).watch();
+
+  Future<int> insertReferenceImage(ReferenceImagesCompanion image) =>
+      into(referenceImages).insert(image);
+
+  Future<int> updateReferenceImageLocalUri(String id, String localUri) =>
+      (update(referenceImages)..where((r) => r.id.equals(id))).write(
+        ReferenceImagesCompanion(localUri: Value(localUri)),
+      );
+
+  Future<int> deleteReferenceImage(String id) =>
+      (delete(referenceImages)..where((r) => r.id.equals(id))).go();
 }
 
 LazyDatabase _openConnection() {

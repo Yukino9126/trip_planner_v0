@@ -699,26 +699,28 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
     final poiId = await _resolvePoiIdForReference();
     if (poiId == null) return;
 
-    final assets = await ref.read(mediaAssetsByPoiProvider(poiId).future);
-    final imageAssets = assets.where(_isReferenceAsset).toList();
+    final images =
+        await ref.read(referenceImagesByPoiProvider(poiId).future);
 
     if (!mounted) return;
-    if (imageAssets.isEmpty) {
+    if (images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No POI images available.')),
+        const SnackBar(
+          content: Text('No reference images. Add some on the POI page.'),
+        ),
       );
       return;
     }
 
-    final picked = await showModalBottomSheet<MediaAsset>(
+    final picked = await showModalBottomSheet<ReferenceImage>(
       context: context,
       backgroundColor: Colors.grey[900],
       builder: (ctx) => ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: imageAssets.length,
+        itemCount: images.length,
         itemBuilder: (ctx, index) {
-          final asset = imageAssets[index];
-          final file = File(asset.localUri);
+          final image = images[index];
+          final file = File(image.localUri);
 
           return ListTile(
             leading: ClipRRect(
@@ -729,7 +731,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
                 child: Image.file(
                   file,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const ColoredBox(
+                  errorBuilder: (_, _, _) => const ColoredBox(
                     color: Colors.black26,
                     child: Icon(Icons.broken_image, color: Colors.white54),
                   ),
@@ -737,16 +739,12 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
               ),
             ),
             title: Text(
-              p.basenameWithoutExtension(asset.localUri),
+              p.basenameWithoutExtension(image.localUri),
               style: const TextStyle(color: Colors.white),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            subtitle: Text(
-              asset.type,
-              style: const TextStyle(color: Colors.white54),
-            ),
-            onTap: () => Navigator.pop(ctx, asset),
+            onTap: () => Navigator.pop(ctx, image),
           );
         },
       ),
@@ -763,7 +761,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
       return;
     }
 
-    ref.read(cameraProvider.notifier).setReferenceImage(file);
+    ref
+        .read(cameraProvider.notifier)
+        .setReferenceImage(file, referenceImageId: picked.id);
   }
 
   Future<String?> _resolvePoiIdForReference() async {
@@ -812,22 +812,6 @@ class _CameraScreenState extends ConsumerState<CameraScreen>
 
     ref.read(cameraProvider.notifier).setPoiId(picked.id);
     return picked.id;
-  }
-
-  bool _isReferenceAsset(MediaAsset asset) {
-    final uri = asset.localUri.toLowerCase();
-    final isKnownImageType = asset.type == 'user_photo' ||
-        asset.type == 'uploaded_image' ||
-        asset.type == 'reference_frame' ||
-        asset.type == 'ticket_qr';
-    final hasImageExtension = uri.endsWith('.jpg') ||
-        uri.endsWith('.jpeg') ||
-        uri.endsWith('.png') ||
-        uri.endsWith('.webp') ||
-        uri.endsWith('.gif') ||
-        uri.endsWith('.heic');
-
-    return isKnownImageType || hasImageExtension;
   }
 
   Future<void> _savePhoto(CameraState camState) async {

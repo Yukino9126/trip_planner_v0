@@ -13,6 +13,7 @@ import '../../../core/database/database.dart';
 class CameraState {
   final bool isInitialized;
   final File? referenceImage;
+  final String? referenceImageId;
   final File? capturedPhoto;
   final String? poiId;
   final String? error;
@@ -23,6 +24,7 @@ class CameraState {
   const CameraState({
     this.isInitialized = false,
     this.referenceImage,
+    this.referenceImageId,
     this.capturedPhoto,
     this.poiId,
     this.error,
@@ -34,6 +36,7 @@ class CameraState {
   CameraState copyWith({
     bool? isInitialized,
     File? referenceImage,
+    String? referenceImageId,
     File? capturedPhoto,
     String? poiId,
     String? error,
@@ -41,6 +44,7 @@ class CameraState {
     double? overlayScale,
     double? overlayOpacity,
     bool clearReferenceImage = false,
+    bool clearReferenceImageId = false,
     bool clearCapturedPhoto = false,
     bool clearError = false,
   }) {
@@ -48,6 +52,9 @@ class CameraState {
       isInitialized: isInitialized ?? this.isInitialized,
       referenceImage:
           clearReferenceImage ? null : (referenceImage ?? this.referenceImage),
+      referenceImageId: (clearReferenceImage || clearReferenceImageId)
+          ? null
+          : (referenceImageId ?? this.referenceImageId),
       capturedPhoto:
           clearCapturedPhoto ? null : (capturedPhoto ?? this.capturedPhoto),
       poiId: poiId ?? this.poiId,
@@ -70,9 +77,11 @@ class CameraNotifier extends StateNotifier<CameraState> {
     state = state.copyWith(error: message);
   }
 
-  void setReferenceImage(File file) {
+  void setReferenceImage(File file, {String? referenceImageId}) {
     state = state.copyWith(
       referenceImage: file,
+      referenceImageId: referenceImageId,
+      clearReferenceImageId: referenceImageId == null,
       overlayOffset: Offset.zero,
       overlayScale: 1,
       overlayOpacity: 0.55,
@@ -127,6 +136,7 @@ class CameraNotifier extends StateNotifier<CameraState> {
         localUri: savedPath,
         remoteUrl: const Value(null),
         metadata: const Value(null),
+        referenceImageId: Value(state.referenceImageId),
       ));
 
       return true;

@@ -1509,6 +1509,371 @@ class TimeChunksCompanion extends UpdateCompanion<TimeChunk> {
   }
 }
 
+class $ReferenceImagesTable extends ReferenceImages
+    with TableInfo<$ReferenceImagesTable, ReferenceImage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReferenceImagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _poiIdMeta = const VerificationMeta('poiId');
+  @override
+  late final GeneratedColumn<String> poiId = GeneratedColumn<String>(
+    'poi_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES pois (id)',
+    ),
+  );
+  static const VerificationMeta _localUriMeta = const VerificationMeta(
+    'localUri',
+  );
+  @override
+  late final GeneratedColumn<String> localUri = GeneratedColumn<String>(
+    'local_uri',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteUrlMeta = const VerificationMeta(
+    'remoteUrl',
+  );
+  @override
+  late final GeneratedColumn<String> remoteUrl = GeneratedColumn<String>(
+    'remote_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _metadataMeta = const VerificationMeta(
+    'metadata',
+  );
+  @override
+  late final GeneratedColumn<String> metadata = GeneratedColumn<String>(
+    'metadata',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    poiId,
+    localUri,
+    remoteUrl,
+    metadata,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reference_images';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReferenceImage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('poi_id')) {
+      context.handle(
+        _poiIdMeta,
+        poiId.isAcceptableOrUnknown(data['poi_id']!, _poiIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_poiIdMeta);
+    }
+    if (data.containsKey('local_uri')) {
+      context.handle(
+        _localUriMeta,
+        localUri.isAcceptableOrUnknown(data['local_uri']!, _localUriMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localUriMeta);
+    }
+    if (data.containsKey('remote_url')) {
+      context.handle(
+        _remoteUrlMeta,
+        remoteUrl.isAcceptableOrUnknown(data['remote_url']!, _remoteUrlMeta),
+      );
+    }
+    if (data.containsKey('metadata')) {
+      context.handle(
+        _metadataMeta,
+        metadata.isAcceptableOrUnknown(data['metadata']!, _metadataMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReferenceImage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReferenceImage(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      poiId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}poi_id'],
+      )!,
+      localUri: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_uri'],
+      )!,
+      remoteUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_url'],
+      ),
+      metadata: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metadata'],
+      ),
+    );
+  }
+
+  @override
+  $ReferenceImagesTable createAlias(String alias) {
+    return $ReferenceImagesTable(attachedDatabase, alias);
+  }
+}
+
+class ReferenceImage extends DataClass implements Insertable<ReferenceImage> {
+  final String id;
+  final String poiId;
+  final String localUri;
+  final String? remoteUrl;
+  final String? metadata;
+  const ReferenceImage({
+    required this.id,
+    required this.poiId,
+    required this.localUri,
+    this.remoteUrl,
+    this.metadata,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['poi_id'] = Variable<String>(poiId);
+    map['local_uri'] = Variable<String>(localUri);
+    if (!nullToAbsent || remoteUrl != null) {
+      map['remote_url'] = Variable<String>(remoteUrl);
+    }
+    if (!nullToAbsent || metadata != null) {
+      map['metadata'] = Variable<String>(metadata);
+    }
+    return map;
+  }
+
+  ReferenceImagesCompanion toCompanion(bool nullToAbsent) {
+    return ReferenceImagesCompanion(
+      id: Value(id),
+      poiId: Value(poiId),
+      localUri: Value(localUri),
+      remoteUrl: remoteUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteUrl),
+      metadata: metadata == null && nullToAbsent
+          ? const Value.absent()
+          : Value(metadata),
+    );
+  }
+
+  factory ReferenceImage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReferenceImage(
+      id: serializer.fromJson<String>(json['id']),
+      poiId: serializer.fromJson<String>(json['poiId']),
+      localUri: serializer.fromJson<String>(json['localUri']),
+      remoteUrl: serializer.fromJson<String?>(json['remoteUrl']),
+      metadata: serializer.fromJson<String?>(json['metadata']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'poiId': serializer.toJson<String>(poiId),
+      'localUri': serializer.toJson<String>(localUri),
+      'remoteUrl': serializer.toJson<String?>(remoteUrl),
+      'metadata': serializer.toJson<String?>(metadata),
+    };
+  }
+
+  ReferenceImage copyWith({
+    String? id,
+    String? poiId,
+    String? localUri,
+    Value<String?> remoteUrl = const Value.absent(),
+    Value<String?> metadata = const Value.absent(),
+  }) => ReferenceImage(
+    id: id ?? this.id,
+    poiId: poiId ?? this.poiId,
+    localUri: localUri ?? this.localUri,
+    remoteUrl: remoteUrl.present ? remoteUrl.value : this.remoteUrl,
+    metadata: metadata.present ? metadata.value : this.metadata,
+  );
+  ReferenceImage copyWithCompanion(ReferenceImagesCompanion data) {
+    return ReferenceImage(
+      id: data.id.present ? data.id.value : this.id,
+      poiId: data.poiId.present ? data.poiId.value : this.poiId,
+      localUri: data.localUri.present ? data.localUri.value : this.localUri,
+      remoteUrl: data.remoteUrl.present ? data.remoteUrl.value : this.remoteUrl,
+      metadata: data.metadata.present ? data.metadata.value : this.metadata,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReferenceImage(')
+          ..write('id: $id, ')
+          ..write('poiId: $poiId, ')
+          ..write('localUri: $localUri, ')
+          ..write('remoteUrl: $remoteUrl, ')
+          ..write('metadata: $metadata')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, poiId, localUri, remoteUrl, metadata);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReferenceImage &&
+          other.id == this.id &&
+          other.poiId == this.poiId &&
+          other.localUri == this.localUri &&
+          other.remoteUrl == this.remoteUrl &&
+          other.metadata == this.metadata);
+}
+
+class ReferenceImagesCompanion extends UpdateCompanion<ReferenceImage> {
+  final Value<String> id;
+  final Value<String> poiId;
+  final Value<String> localUri;
+  final Value<String?> remoteUrl;
+  final Value<String?> metadata;
+  final Value<int> rowid;
+  const ReferenceImagesCompanion({
+    this.id = const Value.absent(),
+    this.poiId = const Value.absent(),
+    this.localUri = const Value.absent(),
+    this.remoteUrl = const Value.absent(),
+    this.metadata = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReferenceImagesCompanion.insert({
+    required String id,
+    required String poiId,
+    required String localUri,
+    this.remoteUrl = const Value.absent(),
+    this.metadata = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       poiId = Value(poiId),
+       localUri = Value(localUri);
+  static Insertable<ReferenceImage> custom({
+    Expression<String>? id,
+    Expression<String>? poiId,
+    Expression<String>? localUri,
+    Expression<String>? remoteUrl,
+    Expression<String>? metadata,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (poiId != null) 'poi_id': poiId,
+      if (localUri != null) 'local_uri': localUri,
+      if (remoteUrl != null) 'remote_url': remoteUrl,
+      if (metadata != null) 'metadata': metadata,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReferenceImagesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? poiId,
+    Value<String>? localUri,
+    Value<String?>? remoteUrl,
+    Value<String?>? metadata,
+    Value<int>? rowid,
+  }) {
+    return ReferenceImagesCompanion(
+      id: id ?? this.id,
+      poiId: poiId ?? this.poiId,
+      localUri: localUri ?? this.localUri,
+      remoteUrl: remoteUrl ?? this.remoteUrl,
+      metadata: metadata ?? this.metadata,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (poiId.present) {
+      map['poi_id'] = Variable<String>(poiId.value);
+    }
+    if (localUri.present) {
+      map['local_uri'] = Variable<String>(localUri.value);
+    }
+    if (remoteUrl.present) {
+      map['remote_url'] = Variable<String>(remoteUrl.value);
+    }
+    if (metadata.present) {
+      map['metadata'] = Variable<String>(metadata.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReferenceImagesCompanion(')
+          ..write('id: $id, ')
+          ..write('poiId: $poiId, ')
+          ..write('localUri: $localUri, ')
+          ..write('remoteUrl: $remoteUrl, ')
+          ..write('metadata: $metadata, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $MediaAssetsTable extends MediaAssets
     with TableInfo<$MediaAssetsTable, MediaAsset> {
   @override
@@ -1578,6 +1943,20 @@ class $MediaAssetsTable extends MediaAssets
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _referenceImageIdMeta = const VerificationMeta(
+    'referenceImageId',
+  );
+  @override
+  late final GeneratedColumn<String> referenceImageId = GeneratedColumn<String>(
+    'reference_image_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES reference_images (id) ON DELETE SET NULL',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1586,6 +1965,7 @@ class $MediaAssetsTable extends MediaAssets
     localUri,
     remoteUrl,
     metadata,
+    referenceImageId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1640,6 +2020,15 @@ class $MediaAssetsTable extends MediaAssets
         metadata.isAcceptableOrUnknown(data['metadata']!, _metadataMeta),
       );
     }
+    if (data.containsKey('reference_image_id')) {
+      context.handle(
+        _referenceImageIdMeta,
+        referenceImageId.isAcceptableOrUnknown(
+          data['reference_image_id']!,
+          _referenceImageIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1673,6 +2062,10 @@ class $MediaAssetsTable extends MediaAssets
         DriftSqlType.string,
         data['${effectivePrefix}metadata'],
       ),
+      referenceImageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference_image_id'],
+      ),
     );
   }
 
@@ -1689,6 +2082,7 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
   final String localUri;
   final String? remoteUrl;
   final String? metadata;
+  final String? referenceImageId;
   const MediaAsset({
     required this.id,
     required this.poiId,
@@ -1696,6 +2090,7 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
     required this.localUri,
     this.remoteUrl,
     this.metadata,
+    this.referenceImageId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1709,6 +2104,9 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
     }
     if (!nullToAbsent || metadata != null) {
       map['metadata'] = Variable<String>(metadata);
+    }
+    if (!nullToAbsent || referenceImageId != null) {
+      map['reference_image_id'] = Variable<String>(referenceImageId);
     }
     return map;
   }
@@ -1725,6 +2123,9 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
       metadata: metadata == null && nullToAbsent
           ? const Value.absent()
           : Value(metadata),
+      referenceImageId: referenceImageId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(referenceImageId),
     );
   }
 
@@ -1740,6 +2141,7 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
       localUri: serializer.fromJson<String>(json['localUri']),
       remoteUrl: serializer.fromJson<String?>(json['remoteUrl']),
       metadata: serializer.fromJson<String?>(json['metadata']),
+      referenceImageId: serializer.fromJson<String?>(json['referenceImageId']),
     );
   }
   @override
@@ -1752,6 +2154,7 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
       'localUri': serializer.toJson<String>(localUri),
       'remoteUrl': serializer.toJson<String?>(remoteUrl),
       'metadata': serializer.toJson<String?>(metadata),
+      'referenceImageId': serializer.toJson<String?>(referenceImageId),
     };
   }
 
@@ -1762,6 +2165,7 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
     String? localUri,
     Value<String?> remoteUrl = const Value.absent(),
     Value<String?> metadata = const Value.absent(),
+    Value<String?> referenceImageId = const Value.absent(),
   }) => MediaAsset(
     id: id ?? this.id,
     poiId: poiId ?? this.poiId,
@@ -1769,6 +2173,9 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
     localUri: localUri ?? this.localUri,
     remoteUrl: remoteUrl.present ? remoteUrl.value : this.remoteUrl,
     metadata: metadata.present ? metadata.value : this.metadata,
+    referenceImageId: referenceImageId.present
+        ? referenceImageId.value
+        : this.referenceImageId,
   );
   MediaAsset copyWithCompanion(MediaAssetsCompanion data) {
     return MediaAsset(
@@ -1778,6 +2185,9 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
       localUri: data.localUri.present ? data.localUri.value : this.localUri,
       remoteUrl: data.remoteUrl.present ? data.remoteUrl.value : this.remoteUrl,
       metadata: data.metadata.present ? data.metadata.value : this.metadata,
+      referenceImageId: data.referenceImageId.present
+          ? data.referenceImageId.value
+          : this.referenceImageId,
     );
   }
 
@@ -1789,14 +2199,22 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
           ..write('type: $type, ')
           ..write('localUri: $localUri, ')
           ..write('remoteUrl: $remoteUrl, ')
-          ..write('metadata: $metadata')
+          ..write('metadata: $metadata, ')
+          ..write('referenceImageId: $referenceImageId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, poiId, type, localUri, remoteUrl, metadata);
+  int get hashCode => Object.hash(
+    id,
+    poiId,
+    type,
+    localUri,
+    remoteUrl,
+    metadata,
+    referenceImageId,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1806,7 +2224,8 @@ class MediaAsset extends DataClass implements Insertable<MediaAsset> {
           other.type == this.type &&
           other.localUri == this.localUri &&
           other.remoteUrl == this.remoteUrl &&
-          other.metadata == this.metadata);
+          other.metadata == this.metadata &&
+          other.referenceImageId == this.referenceImageId);
 }
 
 class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
@@ -1816,6 +2235,7 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
   final Value<String> localUri;
   final Value<String?> remoteUrl;
   final Value<String?> metadata;
+  final Value<String?> referenceImageId;
   final Value<int> rowid;
   const MediaAssetsCompanion({
     this.id = const Value.absent(),
@@ -1824,6 +2244,7 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
     this.localUri = const Value.absent(),
     this.remoteUrl = const Value.absent(),
     this.metadata = const Value.absent(),
+    this.referenceImageId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MediaAssetsCompanion.insert({
@@ -1833,6 +2254,7 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
     required String localUri,
     this.remoteUrl = const Value.absent(),
     this.metadata = const Value.absent(),
+    this.referenceImageId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        poiId = Value(poiId),
@@ -1845,6 +2267,7 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
     Expression<String>? localUri,
     Expression<String>? remoteUrl,
     Expression<String>? metadata,
+    Expression<String>? referenceImageId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1854,6 +2277,7 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
       if (localUri != null) 'local_uri': localUri,
       if (remoteUrl != null) 'remote_url': remoteUrl,
       if (metadata != null) 'metadata': metadata,
+      if (referenceImageId != null) 'reference_image_id': referenceImageId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1865,6 +2289,7 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
     Value<String>? localUri,
     Value<String?>? remoteUrl,
     Value<String?>? metadata,
+    Value<String?>? referenceImageId,
     Value<int>? rowid,
   }) {
     return MediaAssetsCompanion(
@@ -1874,6 +2299,7 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
       localUri: localUri ?? this.localUri,
       remoteUrl: remoteUrl ?? this.remoteUrl,
       metadata: metadata ?? this.metadata,
+      referenceImageId: referenceImageId ?? this.referenceImageId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1899,6 +2325,9 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
     if (metadata.present) {
       map['metadata'] = Variable<String>(metadata.value);
     }
+    if (referenceImageId.present) {
+      map['reference_image_id'] = Variable<String>(referenceImageId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1914,6 +2343,7 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
           ..write('localUri: $localUri, ')
           ..write('remoteUrl: $remoteUrl, ')
           ..write('metadata: $metadata, ')
+          ..write('referenceImageId: $referenceImageId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1926,6 +2356,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RoisTable rois = $RoisTable(this);
   late final $PoisTable pois = $PoisTable(this);
   late final $TimeChunksTable timeChunks = $TimeChunksTable(this);
+  late final $ReferenceImagesTable referenceImages = $ReferenceImagesTable(
+    this,
+  );
   late final $MediaAssetsTable mediaAssets = $MediaAssetsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -1935,8 +2368,19 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     rois,
     pois,
     timeChunks,
+    referenceImages,
     mediaAssets,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'reference_images',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('media_assets', kind: UpdateKind.update)],
+    ),
+  ]);
 }
 
 typedef $$RoisTableCreateCompanionBuilder =
@@ -2304,6 +2748,26 @@ final class $$PoisTableReferences
     );
   }
 
+  static MultiTypedResultKey<$ReferenceImagesTable, List<ReferenceImage>>
+  _referenceImagesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.referenceImages,
+    aliasName: $_aliasNameGenerator(db.pois.id, db.referenceImages.poiId),
+  );
+
+  $$ReferenceImagesTableProcessedTableManager get referenceImagesRefs {
+    final manager = $$ReferenceImagesTableTableManager(
+      $_db,
+      $_db.referenceImages,
+    ).filter((f) => f.poiId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _referenceImagesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$MediaAssetsTable, List<MediaAsset>>
   _mediaAssetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.mediaAssets,
@@ -2425,6 +2889,31 @@ class $$PoisTableFilterComposer extends Composer<_$AppDatabase, $PoisTable> {
           }) => $$TimeChunksTableFilterComposer(
             $db: $db,
             $table: $db.timeChunks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> referenceImagesRefs(
+    Expression<bool> Function($$ReferenceImagesTableFilterComposer f) f,
+  ) {
+    final $$ReferenceImagesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.referenceImages,
+      getReferencedColumn: (t) => t.poiId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReferenceImagesTableFilterComposer(
+            $db: $db,
+            $table: $db.referenceImages,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2647,6 +3136,31 @@ class $$PoisTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> referenceImagesRefs<T extends Object>(
+    Expression<T> Function($$ReferenceImagesTableAnnotationComposer a) f,
+  ) {
+    final $$ReferenceImagesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.referenceImages,
+      getReferencedColumn: (t) => t.poiId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReferenceImagesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.referenceImages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> mediaAssetsRefs<T extends Object>(
     Expression<T> Function($$MediaAssetsTableAnnotationComposer a) f,
   ) {
@@ -2689,6 +3203,7 @@ class $$PoisTableTableManager
           PrefetchHooks Function({
             bool roiId,
             bool timeChunksRefs,
+            bool referenceImagesRefs,
             bool mediaAssetsRefs,
           })
         > {
@@ -2773,12 +3288,14 @@ class $$PoisTableTableManager
               ({
                 roiId = false,
                 timeChunksRefs = false,
+                referenceImagesRefs = false,
                 mediaAssetsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (timeChunksRefs) db.timeChunks,
+                    if (referenceImagesRefs) db.referenceImages,
                     if (mediaAssetsRefs) db.mediaAssets,
                   ],
                   addJoins:
@@ -2831,6 +3348,26 @@ class $$PoisTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (referenceImagesRefs)
+                        await $_getPrefetchedData<
+                          Poi,
+                          $PoisTable,
+                          ReferenceImage
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PoisTableReferences
+                              ._referenceImagesRefsTable(db),
+                          managerFromTypedResult: (p0) => $$PoisTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).referenceImagesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.poiId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (mediaAssetsRefs)
                         await $_getPrefetchedData<Poi, $PoisTable, MediaAsset>(
                           currentTable: table,
@@ -2870,6 +3407,7 @@ typedef $$PoisTableProcessedTableManager =
       PrefetchHooks Function({
         bool roiId,
         bool timeChunksRefs,
+        bool referenceImagesRefs,
         bool mediaAssetsRefs,
       })
     >;
@@ -3210,6 +3748,426 @@ typedef $$TimeChunksTableProcessedTableManager =
       TimeChunk,
       PrefetchHooks Function({bool poiId})
     >;
+typedef $$ReferenceImagesTableCreateCompanionBuilder =
+    ReferenceImagesCompanion Function({
+      required String id,
+      required String poiId,
+      required String localUri,
+      Value<String?> remoteUrl,
+      Value<String?> metadata,
+      Value<int> rowid,
+    });
+typedef $$ReferenceImagesTableUpdateCompanionBuilder =
+    ReferenceImagesCompanion Function({
+      Value<String> id,
+      Value<String> poiId,
+      Value<String> localUri,
+      Value<String?> remoteUrl,
+      Value<String?> metadata,
+      Value<int> rowid,
+    });
+
+final class $$ReferenceImagesTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $ReferenceImagesTable, ReferenceImage> {
+  $$ReferenceImagesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PoisTable _poiIdTable(_$AppDatabase db) => db.pois.createAlias(
+    $_aliasNameGenerator(db.referenceImages.poiId, db.pois.id),
+  );
+
+  $$PoisTableProcessedTableManager get poiId {
+    final $_column = $_itemColumn<String>('poi_id')!;
+
+    final manager = $$PoisTableTableManager(
+      $_db,
+      $_db.pois,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_poiIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$MediaAssetsTable, List<MediaAsset>>
+  _mediaAssetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.mediaAssets,
+    aliasName: $_aliasNameGenerator(
+      db.referenceImages.id,
+      db.mediaAssets.referenceImageId,
+    ),
+  );
+
+  $$MediaAssetsTableProcessedTableManager get mediaAssetsRefs {
+    final manager = $$MediaAssetsTableTableManager($_db, $_db.mediaAssets)
+        .filter(
+          (f) => f.referenceImageId.id.sqlEquals($_itemColumn<String>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_mediaAssetsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ReferenceImagesTableFilterComposer
+    extends Composer<_$AppDatabase, $ReferenceImagesTable> {
+  $$ReferenceImagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localUri => $composableBuilder(
+    column: $table.localUri,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteUrl => $composableBuilder(
+    column: $table.remoteUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PoisTableFilterComposer get poiId {
+    final $$PoisTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.poiId,
+      referencedTable: $db.pois,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PoisTableFilterComposer(
+            $db: $db,
+            $table: $db.pois,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> mediaAssetsRefs(
+    Expression<bool> Function($$MediaAssetsTableFilterComposer f) f,
+  ) {
+    final $$MediaAssetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.referenceImageId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableFilterComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ReferenceImagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReferenceImagesTable> {
+  $$ReferenceImagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localUri => $composableBuilder(
+    column: $table.localUri,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get remoteUrl => $composableBuilder(
+    column: $table.remoteUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PoisTableOrderingComposer get poiId {
+    final $$PoisTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.poiId,
+      referencedTable: $db.pois,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PoisTableOrderingComposer(
+            $db: $db,
+            $table: $db.pois,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReferenceImagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReferenceImagesTable> {
+  $$ReferenceImagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get localUri =>
+      $composableBuilder(column: $table.localUri, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteUrl =>
+      $composableBuilder(column: $table.remoteUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get metadata =>
+      $composableBuilder(column: $table.metadata, builder: (column) => column);
+
+  $$PoisTableAnnotationComposer get poiId {
+    final $$PoisTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.poiId,
+      referencedTable: $db.pois,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PoisTableAnnotationComposer(
+            $db: $db,
+            $table: $db.pois,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> mediaAssetsRefs<T extends Object>(
+    Expression<T> Function($$MediaAssetsTableAnnotationComposer a) f,
+  ) {
+    final $$MediaAssetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.referenceImageId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ReferenceImagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReferenceImagesTable,
+          ReferenceImage,
+          $$ReferenceImagesTableFilterComposer,
+          $$ReferenceImagesTableOrderingComposer,
+          $$ReferenceImagesTableAnnotationComposer,
+          $$ReferenceImagesTableCreateCompanionBuilder,
+          $$ReferenceImagesTableUpdateCompanionBuilder,
+          (ReferenceImage, $$ReferenceImagesTableReferences),
+          ReferenceImage,
+          PrefetchHooks Function({bool poiId, bool mediaAssetsRefs})
+        > {
+  $$ReferenceImagesTableTableManager(
+    _$AppDatabase db,
+    $ReferenceImagesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReferenceImagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReferenceImagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReferenceImagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> poiId = const Value.absent(),
+                Value<String> localUri = const Value.absent(),
+                Value<String?> remoteUrl = const Value.absent(),
+                Value<String?> metadata = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReferenceImagesCompanion(
+                id: id,
+                poiId: poiId,
+                localUri: localUri,
+                remoteUrl: remoteUrl,
+                metadata: metadata,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String poiId,
+                required String localUri,
+                Value<String?> remoteUrl = const Value.absent(),
+                Value<String?> metadata = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReferenceImagesCompanion.insert(
+                id: id,
+                poiId: poiId,
+                localUri: localUri,
+                remoteUrl: remoteUrl,
+                metadata: metadata,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ReferenceImagesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({poiId = false, mediaAssetsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (mediaAssetsRefs) db.mediaAssets],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (poiId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.poiId,
+                                referencedTable:
+                                    $$ReferenceImagesTableReferences
+                                        ._poiIdTable(db),
+                                referencedColumn:
+                                    $$ReferenceImagesTableReferences
+                                        ._poiIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (mediaAssetsRefs)
+                    await $_getPrefetchedData<
+                      ReferenceImage,
+                      $ReferenceImagesTable,
+                      MediaAsset
+                    >(
+                      currentTable: table,
+                      referencedTable: $$ReferenceImagesTableReferences
+                          ._mediaAssetsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$ReferenceImagesTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).mediaAssetsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.referenceImageId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ReferenceImagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReferenceImagesTable,
+      ReferenceImage,
+      $$ReferenceImagesTableFilterComposer,
+      $$ReferenceImagesTableOrderingComposer,
+      $$ReferenceImagesTableAnnotationComposer,
+      $$ReferenceImagesTableCreateCompanionBuilder,
+      $$ReferenceImagesTableUpdateCompanionBuilder,
+      (ReferenceImage, $$ReferenceImagesTableReferences),
+      ReferenceImage,
+      PrefetchHooks Function({bool poiId, bool mediaAssetsRefs})
+    >;
 typedef $$MediaAssetsTableCreateCompanionBuilder =
     MediaAssetsCompanion Function({
       required String id,
@@ -3218,6 +4176,7 @@ typedef $$MediaAssetsTableCreateCompanionBuilder =
       required String localUri,
       Value<String?> remoteUrl,
       Value<String?> metadata,
+      Value<String?> referenceImageId,
       Value<int> rowid,
     });
 typedef $$MediaAssetsTableUpdateCompanionBuilder =
@@ -3228,6 +4187,7 @@ typedef $$MediaAssetsTableUpdateCompanionBuilder =
       Value<String> localUri,
       Value<String?> remoteUrl,
       Value<String?> metadata,
+      Value<String?> referenceImageId,
       Value<int> rowid,
     });
 
@@ -3247,6 +4207,28 @@ final class $$MediaAssetsTableReferences
       $_db.pois,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_poiIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ReferenceImagesTable _referenceImageIdTable(_$AppDatabase db) =>
+      db.referenceImages.createAlias(
+        $_aliasNameGenerator(
+          db.mediaAssets.referenceImageId,
+          db.referenceImages.id,
+        ),
+      );
+
+  $$ReferenceImagesTableProcessedTableManager? get referenceImageId {
+    final $_column = $_itemColumn<String>('reference_image_id');
+    if ($_column == null) return null;
+    final manager = $$ReferenceImagesTableTableManager(
+      $_db,
+      $_db.referenceImages,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_referenceImageIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -3302,6 +4284,29 @@ class $$MediaAssetsTableFilterComposer
           }) => $$PoisTableFilterComposer(
             $db: $db,
             $table: $db.pois,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ReferenceImagesTableFilterComposer get referenceImageId {
+    final $$ReferenceImagesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.referenceImageId,
+      referencedTable: $db.referenceImages,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReferenceImagesTableFilterComposer(
+            $db: $db,
+            $table: $db.referenceImages,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3368,6 +4373,29 @@ class $$MediaAssetsTableOrderingComposer
     );
     return composer;
   }
+
+  $$ReferenceImagesTableOrderingComposer get referenceImageId {
+    final $$ReferenceImagesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.referenceImageId,
+      referencedTable: $db.referenceImages,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReferenceImagesTableOrderingComposer(
+            $db: $db,
+            $table: $db.referenceImages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$MediaAssetsTableAnnotationComposer
@@ -3416,6 +4444,29 @@ class $$MediaAssetsTableAnnotationComposer
     );
     return composer;
   }
+
+  $$ReferenceImagesTableAnnotationComposer get referenceImageId {
+    final $$ReferenceImagesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.referenceImageId,
+      referencedTable: $db.referenceImages,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReferenceImagesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.referenceImages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$MediaAssetsTableTableManager
@@ -3431,7 +4482,7 @@ class $$MediaAssetsTableTableManager
           $$MediaAssetsTableUpdateCompanionBuilder,
           (MediaAsset, $$MediaAssetsTableReferences),
           MediaAsset,
-          PrefetchHooks Function({bool poiId})
+          PrefetchHooks Function({bool poiId, bool referenceImageId})
         > {
   $$MediaAssetsTableTableManager(_$AppDatabase db, $MediaAssetsTable table)
     : super(
@@ -3452,6 +4503,7 @@ class $$MediaAssetsTableTableManager
                 Value<String> localUri = const Value.absent(),
                 Value<String?> remoteUrl = const Value.absent(),
                 Value<String?> metadata = const Value.absent(),
+                Value<String?> referenceImageId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MediaAssetsCompanion(
                 id: id,
@@ -3460,6 +4512,7 @@ class $$MediaAssetsTableTableManager
                 localUri: localUri,
                 remoteUrl: remoteUrl,
                 metadata: metadata,
+                referenceImageId: referenceImageId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3470,6 +4523,7 @@ class $$MediaAssetsTableTableManager
                 required String localUri,
                 Value<String?> remoteUrl = const Value.absent(),
                 Value<String?> metadata = const Value.absent(),
+                Value<String?> referenceImageId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MediaAssetsCompanion.insert(
                 id: id,
@@ -3478,6 +4532,7 @@ class $$MediaAssetsTableTableManager
                 localUri: localUri,
                 remoteUrl: remoteUrl,
                 metadata: metadata,
+                referenceImageId: referenceImageId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -3488,7 +4543,7 @@ class $$MediaAssetsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({poiId = false}) {
+          prefetchHooksCallback: ({poiId = false, referenceImageId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -3521,6 +4576,19 @@ class $$MediaAssetsTableTableManager
                               )
                               as T;
                     }
+                    if (referenceImageId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.referenceImageId,
+                                referencedTable: $$MediaAssetsTableReferences
+                                    ._referenceImageIdTable(db),
+                                referencedColumn: $$MediaAssetsTableReferences
+                                    ._referenceImageIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
 
                     return state;
                   },
@@ -3545,7 +4613,7 @@ typedef $$MediaAssetsTableProcessedTableManager =
       $$MediaAssetsTableUpdateCompanionBuilder,
       (MediaAsset, $$MediaAssetsTableReferences),
       MediaAsset,
-      PrefetchHooks Function({bool poiId})
+      PrefetchHooks Function({bool poiId, bool referenceImageId})
     >;
 
 class $AppDatabaseManager {
@@ -3555,6 +4623,8 @@ class $AppDatabaseManager {
   $$PoisTableTableManager get pois => $$PoisTableTableManager(_db, _db.pois);
   $$TimeChunksTableTableManager get timeChunks =>
       $$TimeChunksTableTableManager(_db, _db.timeChunks);
+  $$ReferenceImagesTableTableManager get referenceImages =>
+      $$ReferenceImagesTableTableManager(_db, _db.referenceImages);
   $$MediaAssetsTableTableManager get mediaAssets =>
       $$MediaAssetsTableTableManager(_db, _db.mediaAssets);
 }
