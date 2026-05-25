@@ -18,6 +18,10 @@ class RoiDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/pois?tab=region'),
+        ),
         title: roiAsync.when(
           data: (roi) => Text(roi.name),
           loading: () => const Text('Loading...'),

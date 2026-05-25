@@ -15,6 +15,10 @@ class PoisByAnimeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/pois?tab=anime'),
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -40,6 +44,10 @@ class PoisByTagScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/pois?tab=tag'),
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

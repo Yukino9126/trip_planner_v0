@@ -10,14 +10,24 @@ import '../../roi/providers/roi_provider.dart';
 import '../providers/poi_provider.dart';
 
 class PoiBrowseScreen extends StatelessWidget {
-  const PoiBrowseScreen({super.key});
+  final String? initialTab;
+
+  const PoiBrowseScreen({super.key, this.initialTab});
+
+  static const _tabOrder = ['region', 'anime', 'tag', 'all'];
 
   @override
   Widget build(BuildContext context) {
+    final initialIndex = _tabOrder.indexOf(initialTab ?? '');
     return DefaultTabController(
       length: 4,
+      initialIndex: initialIndex >= 0 ? initialIndex : 0,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/'),
+          ),
           title: const Text('View POIs'),
           bottom: const TabBar(
             isScrollable: true,

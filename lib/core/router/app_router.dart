@@ -43,7 +43,9 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/pois',
-      builder: (context, state) => const PoiBrowseScreen(),
+      builder: (context, state) => PoiBrowseScreen(
+        initialTab: state.uri.queryParameters['tab'],
+      ),
     ),
     GoRoute(
       path: '/pois/:poiId',
